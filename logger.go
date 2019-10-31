@@ -280,33 +280,33 @@ func (l *Logger) CompletedErrorf(functionName string, err error, format string, 
 //** DEBUG
 
 // Debug writes to the Debug destination
-func Debug(functionName string, format string, a ...interface{}) {
+func (l *Logger) Debug(functionName string, format string, a ...interface{}) {
 	logger.Debug.Output(2, fmt.Sprintf("%s %s\n", formatFuncName(functionName), fmt.Sprintf(format, a...)))
 }
 
 //** INFO
 
 // Info writes to the Info destination
-func Info(functionName string, format string, a ...interface{}) {
+func (l *Logger) Info(functionName string, format string, a ...interface{}) {
 	logger.Info.Output(2, fmt.Sprintf("%s %s\n", formatFuncName(functionName), fmt.Sprintf(format, a...)))
 }
 
 //** WARNING
 
 // Warning writes to the Warning destination
-func Warning(functionName string, format string, a ...interface{}) {
+func (l *Logger) Warning(functionName string, format string, a ...interface{}) {
 	logger.Warning.Output(2, fmt.Sprintf("%s %s\n", formatFuncName(functionName), fmt.Sprintf(format, a...)))
 }
 
 //** ERROR
 
 // Error writes to the Error destination and accepts an err
-func Error(functionName string, err string) {
+func (l *Logger) Error(functionName string, err string) {
 	logger.Error.Output(2, fmt.Sprintf("%s %s\n", formatFuncName(functionName), err))
 }
 
 // Errorf writes to the Error destination and accepts an err
-func Errorf(functionName string, err error, format string, a ...interface{}) {
+func (l *Logger) Errorf(functionName string, err error, format string, a ...interface{}) {
 	logger.Error.Output(2, fmt.Sprintf("%s %s %s\n", formatFuncName(functionName), fmt.Sprintf(format, a...), err))
 }
 
