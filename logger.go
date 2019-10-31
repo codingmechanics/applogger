@@ -329,7 +329,7 @@ func dateTimeUTC(i int, useUTC bool) int {
 // used to format function name expected func name to be funcName()
 // if the trailing braces are absent adding it
 func formatFuncName(s string) string {
-	matched, err := regexp.MatchString(`*()`, s)
+	matched, err := regexp.MatchString(`.*()`, s)
 	if err != nil {
 		// Error("formatFuncName", fmt.Sprintf("Error in regexp matching: %v", err))
 		log.Printf("Error: %v\n", err)
