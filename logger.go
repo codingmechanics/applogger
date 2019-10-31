@@ -1,4 +1,4 @@
-package common
+package applogger
 
 import (
 	"fmt"
