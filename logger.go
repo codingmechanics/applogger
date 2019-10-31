@@ -100,7 +100,7 @@ func (l *Logger) Stop() error {
 
 	var err error
 	if logger.LogFile != nil {
-		Debug("Stop", "Closing File")
+		l.Debug("Stop", "Closing File")
 		err = logger.LogFile.Close()
 	}
 
@@ -186,7 +186,7 @@ func (l *Logger) LogDirectoryCleanup(baseFilePath string, daysToKeep int) {
 	currentDate := time.Now().UTC()
 	compareDate := time.Date(currentDate.Year(), currentDate.Month(), currentDate.Day()-daysToKeep, 0, 0, 0, 0, time.UTC)
 
-	Debug("LogDirectoryCleanup", "CompareDate[%v]", compareDate)
+	l.Debug("LogDirectoryCleanup", "CompareDate[%v]", compareDate)
 
 	for _, fileInfo := range fileInfos {
 		if fileInfo.IsDir() == false {
@@ -198,19 +198,19 @@ func (l *Logger) LogDirectoryCleanup(baseFilePath string, daysToKeep int) {
 
 		year, err := strconv.Atoi(parts[0])
 		if err != nil {
-			Errorf("LogDirectoryCleanup", err, "Attempting To Convert Directory [%s]", fileInfo.Name())
+			l.Errorf("LogDirectoryCleanup", err, "Attempting To Convert Directory [%s]", fileInfo.Name())
 			continue
 		}
 
 		month, err := strconv.Atoi(parts[1])
 		if err != nil {
-			Errorf("LogDirectoryCleanup", err, "Attempting To Convert Directory [%s]", fileInfo.Name())
+			l.Errorf("LogDirectoryCleanup", err, "Attempting To Convert Directory [%s]", fileInfo.Name())
 			continue
 		}
 
 		day, err := strconv.Atoi(parts[2])
 		if err != nil {
-			Errorf("LogDirectoryCleanup", err, "Attempting To Convert Directory [%s]", fileInfo.Name())
+			l.Errorf("LogDirectoryCleanup", err, "Attempting To Convert Directory [%s]", fileInfo.Name())
 			continue
 		}
 
@@ -223,18 +223,18 @@ func (l *Logger) LogDirectoryCleanup(baseFilePath string, daysToKeep int) {
 		// Compare the dates and convert to days.
 		daysOld := int(compareDate.Sub(directoryDate).Hours() / 24)
 
-		Debug("LogDirectoryCleanup", "Checking Directory[%s] DaysOld[%d]", fullFileName, daysOld)
+		l.Debug("LogDirectoryCleanup", "Checking Directory[%s] DaysOld[%d]", fullFileName, daysOld)
 
 		if daysOld >= 0 {
-			Debug("LogDirectoryCleanup", "Removing Directory[%s]", fullFileName)
+			l.Debug("LogDirectoryCleanup", "Removing Directory[%s]", fullFileName)
 
 			err = os.RemoveAll(fullFileName)
 			if err != nil {
-				Debug("LogDirectoryCleanup", "Attempting To Remove Directory [%s]", fullFileName)
+				l.Debug("LogDirectoryCleanup", "Attempting To Remove Directory [%s]", fullFileName)
 				continue
 			}
 
-			Debug("LogDirectoryCleanup", "Directory Removed [%s]", fullFileName)
+			l.Debug("LogDirectoryCleanup", "Directory Removed [%s]", fullFileName)
 		}
 	}
 
