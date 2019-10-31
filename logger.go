@@ -91,12 +91,12 @@ func (l *Logger) StartFile(logLevel int32, baseFilePath string, daysToKeep int) 
 	l.turnOnLogging(logLevel, logf)
 
 	// Cleanup any existing directories
-	logger.LogDirectoryCleanup(baseFilePath, daysToKeep)
+	l.LogDirectoryCleanup(baseFilePath, daysToKeep)
 }
 
 // Stop will release resources and shutdown all processing.
 func (l *Logger) Stop() error {
-	Started("main", "Stop")
+	l.Started("Stop")
 
 	var err error
 	if logger.LogFile != nil {
@@ -104,7 +104,7 @@ func (l *Logger) Stop() error {
 		err = logger.LogFile.Close()
 	}
 
-	Completed("main", "Stop")
+	l.Completed("Stop")
 	return err
 }
 
@@ -171,14 +171,14 @@ func (l *Logger) turnOnLogging(logLevel int32, fileHandle io.Writer) {
 }
 
 // LogDirectoryCleanup performs all the directory cleanup and maintenance.
-func (log *ApplicationLog) LogDirectoryCleanup(baseFilePath string, daysToKeep int) {
+func (l *Logger) LogDirectoryCleanup(baseFilePath string, daysToKeep int) {
 
-	Startedf("main", "LogDirectoryCleanup", "BaseFilePath[%s] DaysToKeep[%d]", baseFilePath, daysToKeep)
+	l.Startedf("main", "LogDirectoryCleanup", "BaseFilePath[%s] DaysToKeep[%d]", baseFilePath, daysToKeep)
 
 	// Get a list of existing directories.
 	fileInfos, err := ioutil.ReadDir(baseFilePath)
 	if err != nil {
-		CompletedError(err, "main", "LogDirectoryCleanup")
+		l.CompletedError("LogDirectoryCleanup", err)
 		return
 	}
 
@@ -241,40 +241,40 @@ func (log *ApplicationLog) LogDirectoryCleanup(baseFilePath string, daysToKeep i
 	// We don't need the catch handler to log any errors.
 	err = nil
 
-	Completed("main", "LogDirectoryCleanup")
+	l.Completed("LogDirectoryCleanup")
 	return
 }
 
 //** STARTED AND COMPLETED
 
 // Started uses the Serialize destination and adds a Started tag to the log line
-func Started(title string, functionName string) {
-	logger.Debug.Output(2, fmt.Sprintf("%s : %s : Started\n", title, formatFuncName(functionName)))
+func (l *Logger) Started(functionName string) {
+	logger.Debug.Output(2, fmt.Sprintf("%s Started\n", formatFuncName(functionName)))
 }
 
 // Startedf uses the Serialize destination and writes a Started tag to the log line
-func Startedf(title string, functionName string, format string, a ...interface{}) {
-	logger.Debug.Output(2, fmt.Sprintf("%s : %s : Started : %s\n", title, formatFuncName(functionName), fmt.Sprintf(format, a...)))
+func (l *Logger) Startedf(functionName string, format string, a ...interface{}) {
+	logger.Debug.Output(2, fmt.Sprintf("%s Started %s\n", formatFuncName(functionName), fmt.Sprintf(format, a...)))
 }
 
 // Completed uses the Serialize destination and writes a Completed tag to the log line
-func Completed(title string, functionName string) {
-	logger.Debug.Output(2, fmt.Sprintf("%s : %s : Completed\n", title, formatFuncName(functionName)))
+func (l *Logger) Completed(functionName string) {
+	logger.Debug.Output(2, fmt.Sprintf("%s  Completed\n", formatFuncName(functionName)))
 }
 
 // Completedf uses the Serialize destination and writes a Completed tag to the log line
-func Completedf(title string, functionName string, format string, a ...interface{}) {
-	logger.Debug.Output(2, fmt.Sprintf("%s : %s : Completed : %s\n", title, formatFuncName(functionName), fmt.Sprintf(format, a...)))
+func (l *Logger) Completedf(functionName string, format string, a ...interface{}) {
+	logger.Debug.Output(2, fmt.Sprintf("%s Completed %s\n", formatFuncName(functionName), fmt.Sprintf(format, a...)))
 }
 
 // CompletedError uses the Error destination and writes a Completed tag to the log line
-func CompletedError(err error, title string, functionName string) {
-	logger.Error.Output(2, fmt.Sprintf("%s : %s : Completed : ERROR : %s\n", title, formatFuncName(functionName), err))
+func (l *Logger) CompletedError(functionName string, err error) {
+	logger.Error.Output(2, fmt.Sprintf("%s Completed with ERROR : %s\n", formatFuncName(functionName), err))
 }
 
 // CompletedErrorf uses the Error destination and writes a Completed tag to the log line
-func CompletedErrorf(err error, title string, functionName string, format string, a ...interface{}) {
-	logger.Error.Output(2, fmt.Sprintf("%s : %s : Completed : ERROR : %s : %s\n", title, formatFuncName(functionName), fmt.Sprintf(format, a...), err))
+func (l *Logger) CompletedErrorf(functionName string, err error, format string, a ...interface{}) {
+	logger.Error.Output(2, fmt.Sprintf("%s Completed with ERROR : %s : %s\n", formatFuncName(functionName), fmt.Sprintf(format, a...), err))
 }
 
 //** DEBUG
