@@ -15,9 +15,9 @@ import (
 
 // Logger it loads the config for logging
 type Logger struct {
-	// DisableColor default behavior is to log with color
+	// DisableColor default behavior is to log with no color
 	DisableColor bool
-	// DataTimeUTC default behavior is to log at UTC
+	// DataTimeUTC default behavior is to log at local time
 	DataTimeUTC bool
 }
 
@@ -173,7 +173,7 @@ func (l *Logger) turnOnLogging(logLevel int32, fileHandle io.Writer) {
 // LogDirectoryCleanup performs all the directory cleanup and maintenance.
 func (l *Logger) LogDirectoryCleanup(baseFilePath string, daysToKeep int) {
 
-	l.Startedf("main", "LogDirectoryCleanup", "BaseFilePath[%s] DaysToKeep[%d]", baseFilePath, daysToKeep)
+	l.Startedf("LogDirectoryCleanup", "BaseFilePath[%s] DaysToKeep[%d]", baseFilePath, daysToKeep)
 
 	// Get a list of existing directories.
 	fileInfos, err := ioutil.ReadDir(baseFilePath)
@@ -313,9 +313,9 @@ func (l *Logger) Errorf(functionName string, err error, format string, a ...inte
 // colorize the log out put based on the need
 func colorize(s interface{}, c int, disableColor bool) string {
 	if disableColor {
-		return fmt.Sprintf("%s", s)
+		return fmt.Sprintf("\x1b[%dm%v\x1b[0m", c, s)
 	}
-	return fmt.Sprintf("\x1b[%dm%v\x1b[0m", c, s)
+	return fmt.Sprintf("%s", s)
 }
 
 // options to use UTC timestamps
