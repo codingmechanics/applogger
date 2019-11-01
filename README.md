@@ -51,9 +51,9 @@ func Example() {
 Output 
 
 ```
-DEBUG: 2019/10/31 20:26:10 main.go:73: Example() Started
-INFO: 2019/10/31 20:26:10 main.go:76: Example() Info Log
-WARNING: 2019/10/31 20:26:10 main.go:77: Example() Warn Log
-ERROR: 2019/10/31 20:26:10 main.go:78: Example() Error Log: Dummy Error
-DEBUG: 2019/10/31 20:26:10 main.go:80: Example()  Completed
+DEBUG: 2019/10/31 20:26:10 main.go:24: Example() Started
+INFO: 2019/10/31 20:26:10 main.go:26: Example() Info Log
+WARNING: 2019/10/31 20:26:10 main.go:27: Example() Warn Log
+ERROR: 2019/10/31 20:26:10 main.go:28: Example() Error Log: Dummy Error
+DEBUG: 2019/10/31 20:26:10 main.go:30: Example()  Completed
 ```
