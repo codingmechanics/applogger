@@ -10,7 +10,9 @@ Download and install it:
 
 Import it in your code:
 
-`import "github.com/codingmechanics/applogger"`
+```go
+import "github.com/codingmechanics/applogger"
+```
 
 ### Basic Example
 ```go
