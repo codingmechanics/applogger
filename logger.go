@@ -11,6 +11,8 @@ import (
 	"strings"
 	"sync/atomic"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Logger it loads the config for logging
@@ -41,10 +43,14 @@ const (
 	colorRed
 	colorGreen
 	colorYellow
+	colorBlue
+	colorMagenta
 	colorCyan
+	colorWhite
 
 	colorBold     = 1
 	colorDarkGray = 90
+	colorReset    = 0
 )
 
 // ApplicationLog provides support to write to log files.
@@ -163,7 +169,7 @@ func (l *Logger) turnOnLogging(logLevel int32, fileHandle io.Writer) {
 	timestamp := dateTimeUTC(log.Ldate|log.Ltime|log.Lshortfile, l.DataTimeUTC)
 
 	logger.Debug = log.New(debugHandle, colorize("DEBUG: ", colorBlack, l.DisableColor), timestamp)
-	logger.Info = log.New(infoHandle, colorize("INFO: ", colorCyan, l.DisableColor), timestamp)
+	logger.Info = log.New(infoHandle, colorize("INFO: ", colorBlue, l.DisableColor), timestamp)
 	logger.Warning = log.New(warnHandle, colorize("WARNING: ", colorYellow, l.DisableColor), timestamp)
 	logger.Error = log.New(errorHandle, colorize("ERROR: ", colorRed, l.DisableColor), timestamp)
 
@@ -287,27 +293,90 @@ func (l *Logger) Debug(functionName string, format string, a ...interface{}) {
 //** INFO
 
 // Info writes to the Info destination
-func (l *Logger) Info(functionName string, format string, a ...interface{}) {
-	logger.Info.Output(2, fmt.Sprintf("%s %s\n", formatFuncName(functionName), fmt.Sprintf(format, a...)))
+func (l *Logger) Info(format string, a ...interface{}) {
+	logger.Info.Output(2, fmt.Sprintf("%s\n", fmt.Sprintf(format, a...)))
+}
+
+// Info godoc
+func Info(format string, a ...interface{}) {
+	logger.Info.Output(2, fmt.Sprintf("%s\n", fmt.Sprintf(format, a...)))
 }
 
 //** WARNING
 
 // Warning writes to the Warning destination
-func (l *Logger) Warning(functionName string, format string, a ...interface{}) {
-	logger.Warning.Output(2, fmt.Sprintf("%s %s\n", formatFuncName(functionName), fmt.Sprintf(format, a...)))
+func (l *Logger) Warning(format string, a ...interface{}) {
+	logger.Warning.Output(2, fmt.Sprintf("%s\n", fmt.Sprintf(format, a...)))
 }
 
 //** ERROR
 
 // Error writes to the Error destination and accepts an err
-func (l *Logger) Error(functionName string, err string) {
-	logger.Error.Output(2, fmt.Sprintf("%s %s\n", formatFuncName(functionName), err))
+func (l *Logger) Error(err string) {
+	logger.Error.Output(2, fmt.Sprintf("%s\n", err))
 }
 
 // Errorf writes to the Error destination and accepts an err
 func (l *Logger) Errorf(functionName string, err error, format string, a ...interface{}) {
 	logger.Error.Output(2, fmt.Sprintf("%s %s %s\n", formatFuncName(functionName), fmt.Sprintf(format, a...), err))
+}
+
+// ErrorG will be used for
+func (l *Logger) ErrorG(format string, a ...interface{}) {
+	logger.Error.Output(2, fmt.Sprintf("%s\n", fmt.Sprintf(format, a...)))
+}
+
+//* GIN LOGGER
+
+// GinLogger handler function to custom gin logger
+func (l *Logger) GinLogger() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		t := time.Now()
+		// process request
+		c.Next()
+		latency := time.Since(t)
+		clientIP := c.ClientIP()
+		method := c.Request.Method
+		statusCode := c.Writer.Status()
+		statusColor := colorForStatus(statusCode)
+		methodColor := colorForMethod(method)
+		path := c.Request.URL.Path
+
+		switch {
+		case statusCode >= 400 && statusCode <= 499:
+			{
+				l.Warning("[GIN] |\x1b[%dm %3d \x1b[%dm| %12v | %s |\x1b[%dm %-7s \x1b[%dm| %s %s",
+					statusColor, statusCode, colorReset,
+					latency,
+					clientIP,
+					methodColor, method, colorReset,
+					path,
+					c.Errors.String(),
+				)
+			}
+		case statusCode >= 500:
+			{
+				l.ErrorG("[GIN] |\x1b[%dm %3d \x1b[%dm| %12v | %s |\x1b[%dm %-7s \x1b[%dm| %s %s",
+					statusColor, statusCode, colorReset,
+					latency,
+					clientIP,
+					methodColor, method, colorReset,
+					path,
+					c.Errors.String(),
+				)
+			}
+		default:
+			l.Info("[GIN] |\x1b[%dm %3d \x1b[%dm| %12v | %s |\x1b[%dm %-7s \x1b[%dm| %s %s",
+				statusColor, statusCode, colorReset,
+				latency,
+				clientIP,
+				methodColor, method, colorReset,
+				path,
+				c.Errors.String(),
+			)
+		}
+
+	}
 }
 
 // colorize the log out put based on the need
@@ -339,4 +408,40 @@ func formatFuncName(s string) string {
 		return s
 	}
 	return fmt.Sprintf("%s()", s)
+}
+
+// color httpstatus it will always color it
+func colorForStatus(code int) int {
+	switch {
+	case code >= 200 && code <= 299:
+		return colorGreen
+	case code >= 300 && code <= 399:
+		return colorWhite
+	case code >= 400 && code <= 499:
+		return colorYellow
+	default:
+		return colorRed
+	}
+}
+
+// color http method it will always color it
+func colorForMethod(method string) int {
+	switch {
+	case method == "GET":
+		return colorBlue
+	case method == "POST":
+		return colorCyan
+	case method == "PUT":
+		return colorYellow
+	case method == "DELETE":
+		return colorRed
+	case method == "PATCH":
+		return colorGreen
+	case method == "HEAD":
+		return colorMagenta
+	case method == "OPTIONS":
+		return colorWhite
+	default:
+		return colorReset
+	}
 }
