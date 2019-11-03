@@ -317,8 +317,8 @@ func (l *Logger) Error(err string) {
 }
 
 // Errorf writes to the Error destination and accepts an err
-func (l *Logger) Errorf(functionName string, err error, format string, a ...interface{}) {
-	logger.Error.Output(2, fmt.Sprintf("%s %s %s\n", formatFuncName(functionName), fmt.Sprintf(format, a...), err))
+func (l *Logger) Errorf(format string, err error, a ...interface{}) {
+	logger.Error.Output(2, fmt.Sprintf("%s %s\n", fmt.Sprintf(format, a...), err))
 }
 
 // ErrorG will be used for
