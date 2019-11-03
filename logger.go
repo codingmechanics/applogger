@@ -286,8 +286,8 @@ func (l *Logger) CompletedErrorf(functionName string, err error, format string, 
 //** DEBUG
 
 // Debug writes to the Debug destination
-func (l *Logger) Debug(functionName string, format string, a ...interface{}) {
-	logger.Debug.Output(2, fmt.Sprintf("%s %s\n", formatFuncName(functionName), fmt.Sprintf(format, a...)))
+func (l *Logger) Debug(format string, a ...interface{}) {
+	logger.Debug.Output(2, fmt.Sprintf("%s\n", fmt.Sprintf(format, a...)))
 }
 
 //** INFO
